@@ -1,0 +1,16 @@
+[
+    {
+        "field": "Subject",
+        "predicate": "contains",
+        "value": "urgent",
+        "actions": ["mark_as_read"],
+        "logical_predicate": "Any"
+    },
+    {
+        "field": "Received",
+        "predicate": "less_than",
+        "value": "30",
+        "actions": ["move_message"],
+        "logical_predicate": "All"
+    }
+]
