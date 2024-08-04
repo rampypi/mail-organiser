@@ -14,10 +14,10 @@ class TestProcessEmails(unittest.TestCase):
         mock_apply_string_rule.return_value = True
 
         # Test the function
-        result = apply_string_rule(email, rule['field'], rule['predicate'], rule['value'])
+        result = apply_string_rule(rule['field'], rule['predicate'], rule['value'])
 
         self.assertTrue(result)
-        mock_apply_string_rule.assert_called_once_with(email, rule['field'], rule['predicate'], rule['value'])
+        mock_apply_string_rule.assert_called_once_with(rule['field'], rule['predicate'], rule['value'])
 
     @patch('mail.process_emails.apply_date_rule')
     def test_apply_date_rule(self, mock_apply_date_rule):
