@@ -1,6 +1,6 @@
 import sqlite3
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 DB_FILE = 'emails.db'
 RULES_FILE = 'rules.json'
@@ -22,17 +22,19 @@ def apply_string_rule(field_value, predicate, value):
 
 def apply_date_rule(field_value, predicate, value):
     try:
-        email_date = datetime.strptime(field_value, "%a, %d %b %Y %H:%M:%S %z")  # Adjust date format
+        email_date = datetime.strptime(field_value, "%a, %d %b %Y %H:%M:%S %z")  # Ensure correct format
     except ValueError:
         return False
 
-    today = datetime.utcnow()
+    today = datetime.now(timezone.utc)  # Use timezone-aware datetime
     delta = timedelta(days=int(value))
+
     if predicate == 'less_than':
         return email_date < today - delta
     elif predicate == 'greater_than':
         return email_date > today - delta
     return False
+
 
 def apply_rule(email, rule):
     field_value = email.get(rule['field'].lower(), '')
@@ -54,7 +56,7 @@ def filter_emails(emails, rules):
             'snippet': email[1],
             'subject': email[2],
             'received_date': email[3],
-            'sender': email[4],  # Updated to 'sender'
+            'sender': email[4],
             'date': email[5]
         }
 
@@ -62,21 +64,22 @@ def filter_emails(emails, rules):
         all_conditions_met = True
         any_condition_met = False
 
-        for rule in rules['all_rules']:
-            if rule['logical_predicate'] == 'All':
+        for rule in rules.get('all_rules', []):
+            if rule.get('logical_predicate', 'All') == 'All':
                 if not apply_rule(email_dict, rule):
                     all_conditions_met = False
                     break
 
-        for rule in rules['any_rules']:
-            if rule['logical_predicate'] == 'Any':
+        for rule in rules.get('any_rules', []):
+            if rule.get('logical_predicate', 'Any') == 'Any':
                 if apply_rule(email_dict, rule):
                     any_condition_met = True
 
-        if (any_condition_met or all_conditions_met):
+        if any_condition_met or all_conditions_met:
             filtered_emails.append(email_dict)
 
     return filtered_emails
+
 
 
 

@@ -1,5 +1,5 @@
 import sqlite3
-from authenticate_gmail import authenticate_gmail, fetch_emails
+from .authenticate_gmail import authenticate_gmail, fetch_emails
 
 DB_FILE = 'emails.db'
 
