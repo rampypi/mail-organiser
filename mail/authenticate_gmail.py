@@ -1,3 +1,4 @@
+from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
@@ -40,9 +41,18 @@ def fetch_emails(service, num_emails=10):
     email_data = []
     for message in messages:
         msg = service.users().messages().get(userId='me', id=message['id']).execute()
+        
+        headers = msg['payload']['headers']
+        from_header = next((header['value'] for header in headers if header['name'] == 'From'), 'No From Header')
+        subject_header = next((header['value'] for header in headers if header['name'] == 'Subject'), 'No Subject Header')
+        date_header = next((header['value'] for header in headers if header['name'] == 'Date'), 'No Date Header')
+        
         email_data.append({
             'id': msg['id'],
-            'snippet': msg['snippet']
+            'snippet': msg['snippet'],
+            'from': from_header,
+            'subject': subject_header,
+            'date': date_header
         })
     return email_data
 
