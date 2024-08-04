@@ -95,7 +95,7 @@ Create a JSON file named `rules.json` in the project directory. Define your rule
 1. **Fetch and Store Emails**:
 
    ```bash
-   python fetch_and_store_emails.py
+   python mail/store_emails.py
    ```
 
    This script will authenticate with Google’s Gmail API, fetch emails, and store them in the SQLite database `emails.db`. It also creates the `emails` table if it does not exist.
@@ -103,7 +103,7 @@ Create a JSON file named `rules.json` in the project directory. Define your rule
 2. **Process Emails Based on Rules**:
 
    ```bash
-   python process_emails.py
+   python mail/process_emails.py
    ```
 
    This script will read the rules from `rules.json`, process the emails stored in the database, and perform the specified actions.
@@ -112,12 +112,12 @@ Create a JSON file named `rules.json` in the project directory. Define your rule
 
 1. **Fetch and Store Emails**:
    ```bash
-   python fetch_and_store_emails.py
+   python mail/store_emails.py
    ```
 
 2. **Process Emails**:
    ```bash
-   python process_emails.py
+   python mail/process_emails.py
    ```
 
 ## Contributing
