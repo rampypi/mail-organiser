@@ -1,3 +1,20 @@
-# Default ignored files
-/shelf/
-/workspace.xml
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE specific
+.vscode/
+
+# Environment variables and credentials
+credentials.json
+token.pickle
+
+# Databases
+emails.db
+
+# Virtual environment
+.venv/
+
+# Zsh configuration
+.zshrc
