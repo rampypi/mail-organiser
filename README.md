@@ -1,64 +1,131 @@
-Certainly! Here is the updated README.md structure based on the provided
-information:
+# Email Processing Project
 
-markdown Copy code \# Mail Organiser
+This project consists of a standalone Python script that authenticates to Google’s Gmail API using OAuth, fetches a list of emails from your Inbox, stores them in a relational database, and processes them based on rules defined in a JSON file. The processing is done through a REST API.
 
-Mail Organiser is a Python project designed to manage and process emails
-using Gmail\'s API. The project includes features for storing emails in
-a SQLite database, applying rules to process them, and interacting with
-Gmail.
+## Features
 
-\## Features
+1. **Authenticate with Google’s Gmail API**: Uses OAuth for authentication.
+2. **Fetch Emails**: Retrieves a list of emails from Gmail's Inbox.
+3. **Store Emails**: Stores email data in a relational database (Postgres/MySQL/SQLite3).
+4. **Process Emails**: Processes emails based on rules stored in a JSON file.
+5. **Rules-Based Processing**: Defines rules with conditions and actions.
 
-\- \*\*Fetch Emails:\*\* Connect to Gmail and fetch emails. - \*\*Store
-Emails:\*\* Save fetched emails to a SQLite database. - \*\*Process
-Emails:\*\* Apply rules to emails and perform actions based on those
-rules. - \*\*Rule Application:\*\* Supports string and date-based rule
-application.
+## Prerequisites
 
-\## Project Structure
+1. **Python 3.6+**
+2. **Pip** (Python package installer)
+3. **Google Cloud Project** with Gmail API enabled
 
-mail_organiser/ │ ├── mail/ │ ├── init.py │ ├── authenticate_gmail.py │
-├── process_emails.py │ └── store_emails.py │ ├── tests/ │ ├── init.py │
-├── test_authenticate_gmail.py │ ├── test_process_emails.py │ └──
-test_store_emails.py │ ├── .gitignore ├── README.md └── requirements.txt
+## Setup
 
-markdown Copy code
+### 1. Clone the Repository
 
-\## Requirements
+```bash
+git clone https://github.com/username/repository.git
+cd repository
+```
 
-1\. Python 3.11+ 2. \`google-auth\` 3. \`google-auth-oauthlib\` 4.
-\`google-auth-httplib2\` 5. \`google-api-python-client\` 6. \`sqlite3\`
-7. \`requests\` 8. \`unittest\`
+### 2. Install Dependencies
 
-\## Setup
+Create and activate a virtual environment:
 
-\### 1. Clone the Repository
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
 
-\`\`\`bash git clone https://github.com/rampypi/mail-organiser.git cd
-mail-organiser 2. Create a Virtual Environment bash Copy code python -m
-venv .venv source .venv/bin/activate \# On Windows use
-\`.venv\\Scripts\\activate\` 3. Install Dependencies bash Copy code pip
-install -r requirements.txt 4. Configure Gmail API Go to the Google
-Cloud Console. Create a new project or select an existing one. Enable
-the Gmail API for your project. Create OAuth 2.0 credentials and
-download the credentials.json file. Save credentials.json in the mail/
-directory. 5. Create the Database and Store Emails Run the following
-script to create the SQLite database and store emails:
+Install required Python packages:
 
-bash Copy code python mail/store_emails.py 6. Process Emails Run the
-following script to process emails based on the rules defined in
-rules.json:
+```bash
+pip install -r requirements.txt
+```
 
-bash Copy code python mail/process_emails.py Configuration Rules File
-(rules.json) Define the rules for processing emails in the rules.json
-file. An example is shown below:
+### 3. Configure Google API
 
-json Copy code \[ { \"field\": \"Subject\", \"predicate\": \"contains\",
-\"value\": \"urgent\", \"actions\": \[\"mark_as_read\"\],
-\"logical_predicate\": \"Any\" }, { \"field\": \"Received\",
-\"predicate\": \"less_than\", \"value\": \"30\", \"actions\":
-\[\"move_message\"\], \"logical_predicate\": \"All\" } \] Tests Running
-Tests To run the unit tests, use the following command:
+1. **Set up Google Cloud Project**:
+   - Create a project on [Google Cloud Console](https://console.cloud.google.com/).
+   - Enable the Gmail API.
+   - Create OAuth 2.0 credentials (Client ID and Secret).
 
-bash Copy code python -m unittest discover -s tests
+2. **Download OAuth Credentials**:
+   - Save the JSON file with OAuth 2.0 credentials as `credentials.json` in the project directory.
+
+### 4. Configure Database
+
+Edit `config.py` to set up your database connection. Update the following variables with your database details:
+
+- `DATABASE_URL` (For Postgres/MySQL)
+- `DATABASE_NAME` (For SQLite3)
+
+For example, for SQLite3:
+
+```python
+DATABASE_URL = 'sqlite:///emails.db'
+```
+
+For Postgres:
+
+```python
+DATABASE_URL = 'postgresql://username:password@localhost/dbname'
+```
+
+### 5. JSON Rules File
+
+Create a JSON file named `rules.json` in the project directory. Define your rules with conditions and actions. Example format:
+
+```json
+[
+    {
+        "conditions": {
+            "subject_contains": "urgent",
+            "from": "example@example.com"
+        },
+        "actions": [
+            "archive",
+            "notify"
+        ]
+    }
+]
+```
+
+### 6. Run the Scripts
+
+1. **Fetch and Store Emails**:
+
+   ```bash
+   python fetch_emails.py
+   ```
+
+   This script will authenticate with Google’s Gmail API, fetch emails, and store them in the configured database.
+
+2. **Process Emails Based on Rules**:
+
+   ```bash
+   python process_emails.py
+   ```
+
+   This script will read the rules from `rules.json`, process the emails stored in the database, and perform the specified actions.
+
+## Example Usage
+
+1. **Fetch Emails**:
+   ```bash
+   python fetch_emails.py
+   ```
+
+2. **Process Emails**:
+   ```bash
+   python process_emails.py
+   ```
+
+## Contributing
+
+If you would like to contribute to this project, please fork the repository and submit a pull request. Ensure your changes adhere to the existing coding style and include appropriate tests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+Feel free to adjust the details according to your specific project setup and requirements. Let me know if you need any additional sections or changes!
