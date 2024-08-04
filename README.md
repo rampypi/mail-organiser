@@ -59,18 +59,35 @@ The project uses SQLite as the database. No additional configuration is needed f
 Create a JSON file named `rules.json` in the project directory. Define your rules with conditions and actions. Example format:
 
 ```json
-[
-    {
-        "conditions": {
-            "subject_contains": "urgent",
-            "from": "example@example.com"
+{
+    "all_rules": [
+        {
+            "field": "Subject",
+            "predicate": "contains",
+            "value": "secrets",
+            "actions": ["mark_as_read"],
+            "logical_predicate": "Any"
+        }
+    ],
+    "any_rules": [
+        {
+            "field": "Subject",
+            "predicate": "contains",
+            "value": "urgent",
+            "actions": ["archive"],
+            "logical_predicate": "Any"
         },
-        "actions": [
-            "archive",
-            "notify"
-        ]
-    }
-]
+        {
+            "field": "From",
+            "predicate": "equals",
+            "value": "example@example.com",
+            "actions": ["notify"],
+            "logical_predicate": "Any"
+        }
+    ]
+}
+
+
 ```
 
 ### 6. Run the Scripts
