@@ -1,12 +1,12 @@
 # Email Processing Project
 
-This project consists of a standalone Python script that authenticates to Google’s Gmail API using OAuth, fetches a list of emails from your Inbox, stores them in a relational database, and processes them based on rules defined in a JSON file. The processing is done through a REST API.
+This project consists of a standalone Python script that authenticates to Google’s Gmail API using OAuth, fetches a list of emails from your Inbox, stores them in a SQLite database, and processes them based on rules defined in a JSON file. The processing is done through a REST API.
 
 ## Features
 
 1. **Authenticate with Google’s Gmail API**: Uses OAuth for authentication.
 2. **Fetch Emails**: Retrieves a list of emails from Gmail's Inbox.
-3. **Store Emails**: Stores email data in a relational database (Postgres/MySQL/SQLite3).
+3. **Store Emails**: Stores email data in an SQLite database.
 4. **Process Emails**: Processes emails based on rules stored in a JSON file.
 5. **Rules-Based Processing**: Defines rules with conditions and actions.
 
@@ -50,24 +50,9 @@ pip install -r requirements.txt
 2. **Download OAuth Credentials**:
    - Save the JSON file with OAuth 2.0 credentials as `credentials.json` in the project directory.
 
-### 4. Configure Database
+### 4. Configure SQLite Database
 
-Edit `config.py` to set up your database connection. Update the following variables with your database details:
-
-- `DATABASE_URL` (For Postgres/MySQL)
-- `DATABASE_NAME` (For SQLite3)
-
-For example, for SQLite3:
-
-```python
-DATABASE_URL = 'sqlite:///emails.db'
-```
-
-For Postgres:
-
-```python
-DATABASE_URL = 'postgresql://username:password@localhost/dbname'
-```
+The project uses SQLite as the database. No additional configuration is needed for SQLite beyond ensuring the `emails.db` file can be created in the project directory.
 
 ### 5. JSON Rules File
 
@@ -93,10 +78,10 @@ Create a JSON file named `rules.json` in the project directory. Define your rule
 1. **Fetch and Store Emails**:
 
    ```bash
-   python fetch_emails.py
+   python fetch_and_store_emails.py
    ```
 
-   This script will authenticate with Google’s Gmail API, fetch emails, and store them in the configured database.
+   This script will authenticate with Google’s Gmail API, fetch emails, and store them in the SQLite database `emails.db`. It also creates the `emails` table if it does not exist.
 
 2. **Process Emails Based on Rules**:
 
@@ -108,9 +93,9 @@ Create a JSON file named `rules.json` in the project directory. Define your rule
 
 ## Example Usage
 
-1. **Fetch Emails**:
+1. **Fetch and Store Emails**:
    ```bash
-   python fetch_emails.py
+   python fetch_and_store_emails.py
    ```
 
 2. **Process Emails**:
@@ -125,7 +110,3 @@ If you would like to contribute to this project, please fork the repository and 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-Feel free to adjust the details according to your specific project setup and requirements. Let me know if you need any additional sections or changes!
