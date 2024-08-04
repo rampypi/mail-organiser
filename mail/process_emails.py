@@ -1,9 +1,10 @@
 import sqlite3
 import json
 from datetime import datetime, timedelta, timezone
+import os
 
 DB_FILE = 'emails.db'
-RULES_FILE = 'rules.json'
+RULES_FILE = os.path.join(os.path.dirname(__file__), 'rules.json')
 
 def load_rules():
     with open(RULES_FILE, 'r') as f:
@@ -35,7 +36,6 @@ def apply_date_rule(field_value, predicate, value):
         return email_date > today - delta
     return False
 
-
 def apply_rule(email, rule):
     field_value = email.get(rule['field'].lower(), '')
     if field_value is None:  # Check if field_value is None
@@ -46,9 +46,10 @@ def apply_rule(email, rule):
     else:
         return apply_string_rule(field_value, rule['predicate'], rule['value'])
 
-
 def filter_emails(emails, rules):
     filtered_emails = []
+    any_conditions = rules.get('conditions', {}).get('any', [])
+    all_conditions = rules.get('conditions', {}).get('all', [])
 
     for email in emails:
         email_dict = {
@@ -60,62 +61,52 @@ def filter_emails(emails, rules):
             'date': email[5]
         }
 
-        # Apply rules based on logical predicates
-        all_conditions_met = True
-        any_condition_met = False
+        # Apply all conditions
+        all_conditions_met = all(
+            apply_rule(email_dict, condition)
+            for condition in all_conditions
+        )
+        print(all_conditions_met,"+++++")
+        # Apply any conditions
+        any_condition_met = any(
+            apply_rule(email_dict, condition)
+            for condition in any_conditions
+        )
 
-        for rule in rules.get('all_rules', []):
-            if rule.get('logical_predicate', 'All') == 'All':
-                if not apply_rule(email_dict, rule):
-                    all_conditions_met = False
-                    break
-
-        for rule in rules.get('any_rules', []):
-            if rule.get('logical_predicate', 'Any') == 'Any':
-                if apply_rule(email_dict, rule):
-                    any_condition_met = True
-
-        if any_condition_met or all_conditions_met:
+        # Email is valid if all conditions are met and any of the any conditions are met
+        if all_conditions_met or any_condition_met:
             filtered_emails.append(email_dict)
 
     return filtered_emails
 
-
-
-
 def process_emails():
+    print("Processing emails...")
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute('SELECT id, snippet, subject, received_date, sender, date FROM emails')  # Adjusted to match the actual columns
+    c.execute('SELECT id, snippet, subject, received_date, sender, date FROM emails')
     emails = c.fetchall()
     conn.close()
 
     rules = load_rules()
+    print("Loaded rules:", rules)
 
-    # Ensure 'any_rules' exists and is a list, default to an empty list if missing
-    all_rules = rules.get('all_rules', [])
-    any_rules = rules.get('any_rules', [])
-
-    filtered_emails = filter_emails(emails, {'all_rules': all_rules, 'any_rules': any_rules})
-
+    filtered_emails = filter_emails(emails, rules)
+    print("Filtered emails count:", len(filtered_emails))
+    
     for email in filtered_emails:
-        print(f"Processing email {email['id']}")
-
+        print(f"Processing email {email['id']}, Subject: {email['subject']}")
         # Apply actions based on the rules
-        for rule in all_rules + any_rules:  # Ensure both types of rules are considered
-            if apply_rule(email, rule):
-                apply_actions(email, rule['actions'])
+        for action in rules.get('actions', []):
+            apply_actions(email, action)
 
-
-def apply_actions(email, actions):
-    for action in actions:
-        if action == 'mark_as_read':
-            print(f"Marking email {email['id']} as read")
-            # Implement the logic to mark the email as read
-        elif action == 'move_message':
-            print(f"Moving email {email['id']} to a different folder")
-            # Implement the logic to move the email to another folder
-        # Add more actions as needed
+def apply_actions(email, action):
+    if action == 'mark_as_read':
+        print(f"Marking email {email['id']} as read")
+        # Implement the logic to mark the email as read
+    elif action == 'move_message':
+        print(f"Moving email {email['id']} to a different folder")
+        # Implement the logic to move the email to another folder
+    # Add more actions as needed
 
 if __name__ == '__main__':
     process_emails()

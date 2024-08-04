@@ -28,7 +28,7 @@ class TestAuthenticateGmail(unittest.TestCase):
         service = authenticate_gmail()
 
         # Assertions
-        MockFlow.assert_called_once_with('credentials.json', ['https://www.googleapis.com/auth/gmail.readonly'])
+        MockFlow.assert_called_once_with('/Users/ramaselvam/repos/mail_organiser/mail/credentials.json', ['https://www.googleapis.com/auth/gmail.readonly'])
         mock_flow.run_local_server.assert_called_once()
         MockBuild.assert_called_once_with('gmail', 'v1', credentials=mock_flow.run_local_server.return_value)
         mock_pickle_dump.assert_called_once()

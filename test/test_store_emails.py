@@ -1,62 +1,69 @@
 import unittest
-from unittest.mock import patch, MagicMock
 import sqlite3
-import re
-from mail.store_emails import create_table, store_emails
+from mail.store_emails import create_table, store_emails, DB_FILE
+import os
 
 class TestStoreEmails(unittest.TestCase):
-
-    @patch('mail.store_emails.sqlite3.connect')
-    def test_create_table(self, mock_connect):
-        # Mock connection and cursor
-        mock_conn = MagicMock()
-        mock_cursor = MagicMock()
-        mock_connect.return_value = mock_conn
-        mock_conn.cursor.return_value = mock_cursor
-
-        # Call the function
+    
+    @classmethod
+    def setUpClass(cls):
+        """Set up the test environment before running the tests."""
+        # Create the database and table
         create_table()
+    
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up after tests."""
+        try:
+            os.remove(DB_FILE)
+        except FileNotFoundError:
+            pass
+    
+    def setUp(self):
+        """Set up a fresh database for each test."""
+        self.conn = sqlite3.connect(DB_FILE)
+        self.c = self.conn.cursor()
+        self.c.execute('DELETE FROM emails')
+        self.conn.commit()
+    
+    def tearDown(self):
+        """Clean up the database after each test."""
+        self.c.execute('DELETE FROM emails')
+        self.conn.commit()
+        self.conn.close()
 
-        # Assertions
-        mock_connect.assert_called_once_with('emails.db')
-        mock_conn.cursor.assert_called_once()
-        
-        # Define the expected SQL command as a regex pattern
-        expected_pattern = r'^CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+emails\s*\(\s*id\s+TEXT\s+PRIMARY\s+KEY\s*,\s+snippet\s+TEXT\s*\)\s*$'
-        
-        # Get the actual SQL command from the mock
-        actual_sql = mock_cursor.execute.call_args[0][0].strip()
-        
-        # Use regex to check if the actual SQL command matches the expected pattern
-        self.assertTrue(re.match(expected_pattern, actual_sql))
-        mock_conn.commit.assert_called_once()
-        mock_conn.close.assert_called_once()
+    def test_create_table(self):
+        """Test that the table is created correctly."""
+        conn = sqlite3.connect(DB_FILE)
+        c = conn.cursor()
+        c.execute("PRAGMA table_info(emails)")
+        columns = [row[1] for row in c.fetchall()]
+        conn.close()
+        expected_columns = ['id', 'snippet', 'subject', 'received_date', 'sender', 'date']
+        self.assertTrue(all(col in columns for col in expected_columns))
 
-    @patch('mail.store_emails.sqlite3.connect')
-    def test_store_emails(self, mock_connect):
-        # Mock connection and cursor
-        mock_conn = MagicMock()
-        mock_cursor = MagicMock()
-        mock_connect.return_value = mock_conn
-        mock_conn.cursor.return_value = mock_cursor
-
-        # Sample email data
+    def test_store_emails(self):
+        """Test that emails are stored correctly."""
         email_data = [
-            {'id': '12345', 'snippet': 'Test snippet 1'},
-            {'id': '67890', 'snippet': 'Test snippet 2'}
+            {
+                'id': '1',
+                'snippet': 'Test snippet',
+                'subject': 'Test subject',
+                'received_date': '2024-08-04',
+                'sender': 'test@example.com',
+                'date': '2024-08-04'
+            }
         ]
-
-        # Call the function
         store_emails(email_data)
-
-        # Assertions
-        mock_connect.assert_called_once_with('emails.db')
-        mock_conn.cursor.assert_called_once()
-        # Check if the execute method was called with the correct parameters
-        mock_cursor.execute.assert_any_call('INSERT OR REPLACE INTO emails (id, snippet) VALUES (?, ?)', ('12345', 'Test snippet 1'))
-        mock_cursor.execute.assert_any_call('INSERT OR REPLACE INTO emails (id, snippet) VALUES (?, ?)', ('67890', 'Test snippet 2'))
-        mock_conn.commit.assert_called_once()
-        mock_conn.close.assert_called_once()
+        
+        conn = sqlite3.connect(DB_FILE)
+        c = conn.cursor()
+        c.execute("SELECT * FROM emails")
+        rows = c.fetchall()
+        conn.close()
+        
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0], ('1', 'Test snippet', 'Test subject', '2024-08-04', 'test@example.com', '2024-08-04'))
 
 if __name__ == '__main__':
     unittest.main()

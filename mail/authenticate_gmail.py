@@ -1,3 +1,4 @@
+import os
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -8,7 +9,9 @@ import pickle
 # Scopes required for Gmail API access
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 # Path to your OAuth 2.0 credentials file
-CREDS_FILE = 'credentials.json'
+
+
+CREDS_FILE = os.path.join(os.path.dirname(__file__), 'credentials.json')
 
 
 def authenticate_gmail():
