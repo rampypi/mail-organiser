@@ -119,6 +119,11 @@ Create a JSON file named `rules.json` in the project directory. Define your rule
    ```bash
    python mail/process_emails.py
    ```
+## Runnin test cases
+
+```bash
+   python3 -m unittest discover -s test
+   ```
 
 ## Contributing
 
