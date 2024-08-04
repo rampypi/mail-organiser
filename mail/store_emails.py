@@ -38,5 +38,4 @@ if __name__ == '__main__':
     create_table()
     service = authenticate_gmail()
     emails = fetch_emails(service)
-    print(emails)
     store_emails(emails)

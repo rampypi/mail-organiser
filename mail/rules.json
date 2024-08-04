@@ -1,20 +1,32 @@
 {
-    "all_rules": [
-        {
-            "field": "Subject",
-            "predicate": "contains",
-            "value": "secrets",
-            "actions": ["mark_as_read"],
-            "logical_predicate": "Any"
-        }
-    ],
-    "any_rules": [
-        {
-            "field": "Received",
-            "predicate": "less_than",
-            "value": "2",
-            "actions": ["move_message"],
-            "logical_predicate": "All"
-        }
+    "conditions": {
+        "any": [
+            {
+                "field": "Subject",
+                "predicate": "contains",
+                "value": "Security alert"
+            },
+            {
+                "field": "Sender",
+                "predicate": "equals",
+                "value": "example@example.com"
+            }
+        ],
+        "all": [
+            {
+                "field": "Received",
+                "predicate": "greater_than",
+                "value": "2"
+            },
+            {
+                "field": "Subject",
+                "predicate": "contains",
+                "value": "Urgent"
+            }
+        ]
+    },
+    "actions": [
+        "mark_as_read",
+        "move_message"
     ]
 }
